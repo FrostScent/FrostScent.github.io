@@ -1,25 +1,25 @@
-title: Welcome to Flexton
-description: Flexton is a responsive and ultra-minimal theme for Jekyll.
+title: Aiden's Home
+description: Study book of Aiden
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "flexton.netlify.com" # the base hostname & protocol for your site, e.g. http://example.com
+url: "FrostScent.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 
 # Author
-author-name:    Clayton Hanson
-author-image:   1.jpg
-author-job:     Web Developer
-author-email:   your-email@domain.com # Add your email for contant form.
-author-twitter: artemsheludko_ # Add your twitter account
-about-author:   I am a web developer focusing on front-end development. Always hungry to keep learning.
+author-name:    Aiden Jang
+author-image:   author.png
+author-job:     Web Dev, Data Science, Plant 3D Admin
+author-email:   sbjang01@gmail.com # Add your email for contant form.
+author-twitter: FrostScent # Add your twitter account
+about-author:   To be Full Stack Web Dev. Data Scienetist. keep learning.
 
 # Social settings
-social-twitter:   artemsheludko_
+social-twitter:   FrostScent
 social-facebook:
-social-github:    artemsheludko
-social-pinterest: artemsheludko
-social-instagram: artemsheludko_
+social-github:    FrostScent
+social-pinterest: 
+social-instagram: seungbeomjang
 social-youtube:
 social-vk:   
-social-linkedin:
+social-linkedin:  승범-장-93aa30101
 
 # Newsletter
 mailchimp: # Add your MailChimp form identifier. For example - blogenjoyfreedom.us16.list-manage.com/subscribe/post?u=cd56155d76ddeeb4c0bc4d080&amp;id=7a526cd13e
@@ -28,13 +28,14 @@ mailchimp: # Add your MailChimp form identifier. For example - blogenjoyfreedom.
 google-analytics: # Add your identifier. For example UA-99631805-1
 
 # Comment Section (Disqus)
-disqus-identifier: mr-brown # Add your shortname for Disqus Comment. For example mr-brown
+disqus-identifier: Aiden # Add your shortname for Disqus Comment. For example mr-brown
 
 # Build settings
 markdown: kramdown
 permalink: /:year/:month/:day/:title/
 plugins:
   - jekyll-paginate
+  - jekyll-toc
 
 paginate: 7
 paginate_path: "/page/:num/"
@@ -51,3 +52,13 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - vendor
+
+toc: 
+  min_level: 1 
+  max_level: 6 
+  ordered_list: false 
+  no_toc_section_class: no_toc_section 
+  list_class: section-nav 
+  sublist_class: '' 
+  item_class: toc-entry 
+  item_prefix: toc-

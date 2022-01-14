@@ -15,7 +15,23 @@ categories: Welcome
 
 본문
 
+#### 목차
 
+###### 순서 목차 샘플:
+
+1. 배고파.
+2. 밥먹자.
+3. Venmo biodiesel gentrify enamel pin meditation.
+4. Jean shorts shaman listicle pickled portland.
+5. Salvia mumblecore brunch iPhone migas.
+
+###### Unordered list example:
+
+* Bitters semiotics vice thundercats synth.
+* Literally cred narwhal bitters wayfarers.
+* Kale chips chartreuse paleo tbh street art marfa.
+* Mlkshk polaroid sriracha brooklyn.
+* Pug you probably haven't heard of them air plant man bun.
 
 You’ll find this post in your `_posts` directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run `jekyll serve`, which launches a web server and auto-regenerates your site when a file is updated.
 

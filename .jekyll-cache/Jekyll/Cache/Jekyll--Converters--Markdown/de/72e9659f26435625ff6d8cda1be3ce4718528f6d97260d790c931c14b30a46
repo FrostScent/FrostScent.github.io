@@ -1,0 +1,120 @@
+I"<p>kaggle 의 튜토리얼이라고도 할 수 있는 타이타닉 생존자 예측하기 문제는 Machine Learning 이나 Deep Learning 입문자라면 누구나 한 번쯤 살펴보게 되는 문제이다.</p>
+
+<p>가장 간단한 형태의 분류 문제로서, 특별한 기교가 있는 건 아니지만 모델 학습을 시작하기 전 전처리의 기본은 한 번씩 구현해 볼만한 주제라 아래에 정리해 보려고 한다.</p>
+
+<p>본 포스팅에서는 전처리를 위한 Package 로 Scikit Learn 을 사용하고 Tensor Flow 를 이용한 Deep Learning 으로 결과를 예측해 보았다.</p>
+
+<hr />
+
+<h2 id="주제">주제</h2>
+
+<p>본 모델은 타이타닉 호 침몰 당시 사망에 영향을 끼칠만한 요인 분석을 통해 승객의 생존 여부를 예측하고자 함이다.</p>
+
+<p>Kaggle 및 데이터 파일은 아래 링크를 참고한다.</p>
+
+<p><a href="https://www.kaggle.com/c/titanic">kaggle link</a></p>
+
+<hr />
+
+<h2 id="변수-설명">변수 설명</h2>
+<p><br /></p>
+<h6 id="passengerid--각-승객의-고유-번호">PassengerId : 각 승객의 고유 번호</h6>
+<h6 id="servived--생존-여부-종속-변수">Servived : 생존 여부 (종속 변수)</h6>
+<ul>
+  <li>0 = 사망</li>
+  <li>1 = 생존</li>
+</ul>
+
+<h6 id="pclass--객실-등급">Pclass : 객실 등급</h6>
+<ul>
+  <li>1st = Upper</li>
+  <li>2nd = Middle</li>
+  <li>3rd = Lower</li>
+</ul>
+
+<h6 id="name--이름">Name : 이름</h6>
+<h6 id="sex--성별">Sex : 성별</h6>
+<h6 id="age--나이">Age : 나이</h6>
+<h6 id="sibsp--동반한-형제자매-배우자-수">SibSp : 동반한 형제자매, 배우자 수</h6>
+<h6 id="parch--동반한-부모-자식-수">Parch : 동반한 부모, 자식 수</h6>
+<h6 id="ticket--티켓-번호">Ticket : 티켓 번호</h6>
+<h6 id="fare--티켓-요금">Fare : 티켓 요금</h6>
+<h6 id="cabin--객실-번호">Cabin : 객실 번호</h6>
+<h6 id="embarked--승선한-항">Embarked : 승선한 항</h6>
+<ul>
+  <li>C = Cherbourg</li>
+  <li>Q = Queenstown</li>
+  <li>S = Southampton</li>
+</ul>
+
+<hr />
+
+<h2 id="code">Code</h2>
+<p><br /></p>
+
+<h4 id="tensorflow-pandas-numpy-package-import">Tensorflow, pandas, Numpy Package Import</h4>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="n">tf</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span></code></pre></figure>
+
+<p><br /></p>
+
+<h4 id="train-test-csv-파일을-pandas-로-load">train, test csv 파일을 pandas 로 load</h4>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">train_df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'train.csv'</span><span class="p">)</span>
+<span class="n">test_df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'test.csv'</span><span class="p">)</span></code></pre></figure>
+
+<p><br /></p>
+
+<h4 id="train-test-dataset-검토">train, test dataset 검토</h4>
+
+<p>각 Datatable 을 조회해서 어떤 Column 들이 포함되어 있는지, 어떤 형태의 값들이 들어 있는지, NAN 값이나 이상치가 보이는지 검토한다.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="c1"># 위에서 5개 열 조회
+</span><span class="n">train_df</span><span class="p">.</span><span class="n">head</span><span class="p">()</span></code></pre></figure>
+
+<p><img src="/images/2021-01-17-tensorflow-titanic-1.png" alt="" /></p>
+
+<h1 id="제목입니다">제목입니다.</h1>
+<h2 id="부제목">부제목</h2>
+
+<p>본문</p>
+
+<h4 id="목차">목차</h4>
+
+<h6 id="순서-목차-샘플">순서 목차 샘플:</h6>
+
+<ol>
+  <li>배고파.</li>
+  <li>밥먹자.</li>
+  <li>Venmo biodiesel gentrify enamel pin meditation.</li>
+  <li>Jean shorts shaman listicle pickled portland.</li>
+  <li>Salvia mumblecore brunch iPhone migas.</li>
+</ol>
+
+<h6 id="unordered-list-example">Unordered list example:</h6>
+
+<ul>
+  <li>Bitters semiotics vice thundercats synth.</li>
+  <li>Literally cred narwhal bitters wayfarers.</li>
+  <li>Kale chips chartreuse paleo tbh street art marfa.</li>
+  <li>Mlkshk polaroid sriracha brooklyn.</li>
+  <li>Pug you probably haven’t heard of them air plant man bun.</li>
+</ul>
+
+<p>You’ll find this post in your <code class="language-plaintext highlighter-rouge">_posts</code> directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run <code class="language-plaintext highlighter-rouge">jekyll serve</code>, which launches a web server and auto-regenerates your site when a file is updated.</p>
+
+<p>To add new posts, simply add a file in the <code class="language-plaintext highlighter-rouge">_posts</code> directory that follows the convention <code class="language-plaintext highlighter-rouge">YYYY-MM-DD-name-of-post.ext</code> and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.</p>
+
+<p>Jekyll also offers powerful support for code snippets:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">print_hi</span><span class="p">(</span><span class="nb">name</span><span class="p">)</span>
+  <span class="nb">puts</span> <span class="s2">"Hi, </span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">"</span>
+<span class="k">end</span>
+<span class="n">print_hi</span><span class="p">(</span><span class="s1">'Tom'</span><span class="p">)</span>
+<span class="c1">#=&gt; prints 'Hi, Tom' to STDOUT.</span></code></pre></figure>
+
+<p>Check out the <a href="https://jekyllrb.com/docs/home">Jekyll docs</a> for more info on how to get the most out of Jekyll. File all bugs/feature requests at <a href="https://github.com/jekyll/jekyll">Jekyll’s GitHub repo</a>. If you have questions, you can ask them on <a href="https://talk.jekyllrb.com/">Jekyll Talk</a>.</p>
+
+:ET

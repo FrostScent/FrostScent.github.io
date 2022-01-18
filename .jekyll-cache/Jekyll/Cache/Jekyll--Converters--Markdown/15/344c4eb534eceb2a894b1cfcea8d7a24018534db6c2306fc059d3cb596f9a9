@@ -1,0 +1,343 @@
+I"!n<p>kaggle 의 튜토리얼이라고도 할 수 있는 타이타닉 생존자 예측하기 문제는 Machine Learning 이나 Deep Learning 입문자라면 누구나 한 번쯤 살펴보게 되는 문제이다.</p>
+
+<p>가장 간단한 형태의 분류 문제로서, 특별한 기교가 있는 건 아니지만 모델 학습을 시작하기 전 전처리의 기본은 한 번씩 구현해 볼만한 주제라 아래에 정리해 보려고 한다.</p>
+
+<p>본 포스팅에서는 전처리를 위한 Package 로 Scikit Learn 을 사용하고 Tensor Flow 를 이용한 Deep Learning 으로 결과를 예측해 보았다.</p>
+
+<hr />
+
+<h2 id="주제">주제</h2>
+
+<p>본 모델은 타이타닉 호 침몰 당시 사망에 영향을 끼칠만한 요인 분석을 통해 승객의 생존 여부를 예측하고자 함이다.</p>
+
+<p>Kaggle 및 데이터 파일은 아래 링크를 참고한다.</p>
+
+<p><a href="https://www.kaggle.com/c/titanic">kaggle link</a></p>
+
+<hr />
+
+<h2 id="변수-설명">변수 설명</h2>
+<p><br /></p>
+<h6 id="passengerid--각-승객의-고유-번호">PassengerId : 각 승객의 고유 번호</h6>
+<h6 id="servived--생존-여부-종속-변수">Servived : 생존 여부 (종속 변수)</h6>
+<ul>
+  <li>0 = 사망</li>
+  <li>1 = 생존</li>
+</ul>
+
+<h6 id="pclass--객실-등급">Pclass : 객실 등급</h6>
+<ul>
+  <li>1st = Upper</li>
+  <li>2nd = Middle</li>
+  <li>3rd = Lower</li>
+</ul>
+
+<h6 id="name--이름">Name : 이름</h6>
+<h6 id="sex--성별">Sex : 성별</h6>
+<h6 id="age--나이">Age : 나이</h6>
+<h6 id="sibsp--동반한-형제자매-배우자-수">SibSp : 동반한 형제자매, 배우자 수</h6>
+<h6 id="parch--동반한-부모-자식-수">Parch : 동반한 부모, 자식 수</h6>
+<h6 id="ticket--티켓-번호">Ticket : 티켓 번호</h6>
+<h6 id="fare--티켓-요금">Fare : 티켓 요금</h6>
+<h6 id="cabin--객실-번호">Cabin : 객실 번호</h6>
+<h6 id="embarked--승선한-항">Embarked : 승선한 항</h6>
+<ul>
+  <li>C = Cherbourg</li>
+  <li>Q = Queenstown</li>
+  <li>S = Southampton</li>
+</ul>
+
+<hr />
+
+<h2 id="code">Code</h2>
+<p><br /></p>
+
+<h4 id="tensorflow-pandas-numpy-package-import">Tensorflow, pandas, Numpy Package Import</h4>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="n">tf</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span></code></pre></figure>
+
+<p><br /></p>
+
+<h4 id="train-test-csv-파일을-pandas-로-load">train, test csv 파일을 pandas 로 load</h4>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">train_df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'train.csv'</span><span class="p">)</span>
+<span class="n">test_df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'test.csv'</span><span class="p">)</span></code></pre></figure>
+
+<p><br /></p>
+
+<h4 id="train-test-dataset-검토">train, test dataset 검토</h4>
+
+<p>각 Datatable 을 조회해서 어떤 Column 들이 포함되어 있는지, 어떤 형태의 값들이 들어 있는지, NaN 값이나 이상치가 보이는지 검토한다.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="c1"># 위에서 5개 열 조회
+</span><span class="n">train_df</span><span class="p">.</span><span class="n">head</span><span class="p">()</span></code></pre></figure>
+
+<p><img src="/images/2021-01-17-tensorflow-titanic-1.png" alt="" /></p>
+
+<p><br /></p>
+
+<h4 id="결측치-검토">결측치 검토</h4>
+
+<p>Datatable 의 .isna().sum() 함수를 이용해서 결측치가 몇 개나 있는지 확인한다.</p>
+
+<p>Age 와 Cabin, Embarked 항목에 NaN 값이 들어가 있는 것을 확인할 수 있다.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="c1"># 결측치 조회
+</span><span class="n">train_df</span><span class="p">.</span><span class="n">isna</span><span class="p">().</span><span class="nb">sum</span><span class="p">()</span>
+
+<span class="n">PassengerId</span>      <span class="mi">0</span>
+<span class="n">Survived</span>         <span class="mi">0</span>
+<span class="n">Pclass</span>           <span class="mi">0</span>
+<span class="n">Name</span>             <span class="mi">0</span>
+<span class="n">Sex</span>              <span class="mi">0</span>
+<span class="n">Age</span>            <span class="mi">177</span>
+<span class="n">SibSp</span>            <span class="mi">0</span>
+<span class="n">Parch</span>            <span class="mi">0</span>
+<span class="n">Ticket</span>           <span class="mi">0</span>
+<span class="n">Fare</span>             <span class="mi">0</span>
+<span class="n">Cabin</span>          <span class="mi">687</span>
+<span class="n">Embarked</span>         <span class="mi">2</span>
+<span class="n">dtype</span><span class="p">:</span> <span class="n">int64</span></code></pre></figure>
+
+<p><br /></p>
+
+<h4 id="결측치-보정">결측치 보정</h4>
+
+<p>모델 생성을 위해 Table 의 결측치 값을 채워줘야 한다.</p>
+
+<p>Cabin 과 Embarked 값은 재워주지 않고 Age 값만 채워주기로 하였다. 나머지 두 값의 공란을 안 채우는 이유는 아래에 후술한다.</p>
+
+<p>이를 위해 sklearn 의 SimpleImputer 를 사용할 것이며, 빈 값을 해당 Column 의 평균 (mean) 값으로 채워주게 하였다.</p>
+
+<p>SimpleImputer 의 Strategy 를 mean 이 아닌 median(중앙값), most_frequent(최빈값), constant (특정값, fill_value 설정 필요) 으로 설정할 수도 있다.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="c1"># Import SimpleImputer
+</span><span class="kn">from</span> <span class="nn">sklearn.impute</span> <span class="kn">import</span> <span class="n">SimpleImputer</span>
+
+<span class="c1"># padding 함수 정의
+</span><span class="k">def</span> <span class="nf">nan_padding</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">columns</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+        <span class="n">imputer</span> <span class="o">=</span> <span class="n">SimpleImputer</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="s">'mean'</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">imputer</span><span class="p">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">data</span><span class="p">[[</span><span class="n">column</span><span class="p">]])</span>
+    <span class="k">return</span> <span class="n">data</span>
+
+<span class="c1"># padding 할 항목 선택 (Age)
+</span><span class="n">nan_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s">'Age'</span><span class="p">]</span>
+
+<span class="c1"># padding 실행
+</span><span class="n">train_df</span> <span class="o">=</span> <span class="n">nan_padding</span><span class="p">(</span><span class="n">train_df</span><span class="p">,</span><span class="n">nan_columns</span><span class="p">)</span>
+<span class="n">test_df</span> <span class="o">=</span> <span class="n">nan_padding</span><span class="p">(</span><span class="n">test_df</span><span class="p">,</span><span class="n">nan_columns</span><span class="p">)</span></code></pre></figure>
+
+<p><br /></p>
+
+<h4 id="필요-없는-column-제거">필요 없는 Column 제거</h4>
+
+<p>생존 여부를 예측하는데에 도움이 안 되는 Column 을 제거한다.</p>
+
+<p>생존 여부와 관계가 없는 값이 모델 학습에 이용되는 경우 모델의 정확도를 떨어뜨리기 때문에 제거해 주는 것이 좋다.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="c1"># drop 함수 정의
+</span><span class="k">def</span> <span class="nf">drop_not_concerned</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">columns</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">data</span><span class="p">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># 제거할 항목 선택
+</span><span class="n">not_concerned</span> <span class="o">=</span> <span class="p">[</span><span class="s">'PassengerId'</span><span class="p">,</span><span class="s">'Name'</span><span class="p">,</span><span class="s">'Ticket'</span><span class="p">,</span><span class="s">'Fare'</span><span class="p">,</span><span class="s">'Cabin'</span><span class="p">,</span><span class="s">'Embarked'</span><span class="p">]</span>
+
+<span class="c1"># drop 실행
+</span><span class="n">train_df</span> <span class="o">=</span> <span class="n">drop_not_concerned</span><span class="p">(</span><span class="n">train_df</span><span class="p">,</span><span class="n">not_concerned</span><span class="p">)</span>
+<span class="n">test_df</span> <span class="o">=</span> <span class="n">drop_not_concerned</span><span class="p">(</span><span class="n">test_df</span><span class="p">,</span><span class="n">not_concerned</span><span class="p">)</span></code></pre></figure>
+
+<p><br /></p>
+
+<h4 id="one-hot-encoding">One-hot Encoding</h4>
+
+<p>범주형 항목 (몇 가지 값중 선택하는 경우) 은 그대로 학습 시키지 않고 One-hot encoding 을 통해 값을 각 항목에 해당하는 Column (0 또는 1 값을 가지는) 으로 변환해서 학습시켜야 한다.</p>
+
+<p>예를 들어 이 모델에서 PClass 값이 1, 2, 또는 3 의 값을 가지고 있는데 이런 경우 PClass Column 을 PClass_1, PClass_2, PClass_3 으로 나눈다.</p>
+
+<p>만약 해당 인원의 PClass 값이 1이라면 PClass_1 의 값을 1로 놓고 PClass_2, PClass_3 의 값을 0 으로 둔다.</p>
+
+<p>PClass 를 그대로 1,2,3 의 값인 상태로 모델을 학습시키면 값이 값이 높을 경우의 PClass 영향도가 더 커질 수 있다. 숫자 값의 크고 작음이 생존 여부와 직결되지 않는다면 One-hot encoding 을 하는 것이 좋다.</p>
+
+<p>One-hot encoding 에 대한 자세한 설명은 별도 포스팅이 필요할 거 같다…</p>
+
+<p>One-hot encoding 을 하는 방법은 여러가지가 있는데, 여기에서는 pandas 의 get_dummies 를 활용한다.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="c1"># One-hot encoding 함수 정의
+</span><span class="k">def</span> <span class="nf">dummy_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">concat</span><span class="p">([</span><span class="n">data</span><span class="p">,</span><span class="n">pd</span><span class="p">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">prefix</span><span class="o">=</span><span class="n">column</span><span class="p">)],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">.</span><span class="n">drop</span><span class="p">(</span><span class="n">column</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span>
+
+<span class="c1"># Encoding 대상 선택
+</span><span class="n">dummy_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s">'Pclass'</span><span class="p">]</span>
+
+<span class="c1"># One-hot encoding 실행
+</span><span class="n">train_df</span> <span class="o">=</span> <span class="n">dummy_data</span><span class="p">(</span><span class="n">train_df</span><span class="p">,</span><span class="n">dummy_columns</span><span class="p">)</span>
+<span class="n">test_df</span> <span class="o">=</span> <span class="n">dummy_data</span><span class="p">(</span><span class="n">test_df</span><span class="p">,</span><span class="n">dummy_columns</span><span class="p">)</span></code></pre></figure>
+
+<p><br /></p>
+
+<h4 id="label-encoding">Label Encoding</h4>
+
+<p>숫자 값이 아닌 문자열 값의 경우 모델 학습이 불가능하다.</p>
+
+<p>이런 경우 각 문자열 값을 숫자로 치환해 주는 과정이 필요하다.</p>
+
+<p>이 모델에서는 Sex 값이 문자열로 되어 있다.</p>
+
+<p>One-hot encoding 을 사용하면 Sex_mail, Sex_femail 이라는 두 Column 으로 값을 나눠 주겠지만, Label encoding 은 Sex 값을 mail, femail 값 각각 0, 1 로 변환해 준다.</p>
+
+<p>만약 Sex 의 값이 3개 이상의 범주로 형성되어 있다면 One-hot encoding 이 더 적절하지만, 남자인지 ‘여부’ 가 생존에 영향을 끼쳤다면 0,1 값으로 학습을 시켜도 충분한 결과를 얻을 수 있다.</p>
+
+<p>sklearn 의 LabelEncoder 를 활용해 보자.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="c1"># Import LabelEncoder
+</span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">LabelEncoder</span>
+
+<span class="c1"># Label Encoding 함수 정의
+</span><span class="k">def</span> <span class="nf">sex_to_int</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">le</span> <span class="o">=</span> <span class="n">LabelEncoder</span><span class="p">()</span>
+    <span class="n">le</span><span class="p">.</span><span class="n">fit</span><span class="p">([</span><span class="s">'male'</span><span class="p">,</span><span class="s">'female'</span><span class="p">])</span>
+    <span class="n">data</span><span class="p">[</span><span class="s">'Sex'</span><span class="p">]</span> <span class="o">=</span> <span class="n">le</span><span class="p">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">'Sex'</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">data</span>
+
+<span class="c1"># 함수 실행
+</span><span class="n">train_df</span> <span class="o">=</span> <span class="n">sex_to_int</span><span class="p">(</span><span class="n">train_df</span><span class="p">)</span>
+<span class="n">test_df</span> <span class="o">=</span> <span class="n">sex_to_int</span><span class="p">(</span><span class="n">test_df</span><span class="p">)</span></code></pre></figure>
+
+<p><br /></p>
+
+<h4 id="data-normalization-정규화">Data Normalization (정규화)</h4>
+
+<p>만약 특정 Column 의 값이 다른 Column 의 값들보다 Scale 이 크고 변동폭이 크다면 해당 Column 이 모델에 실제보다 더 큰 영향을 끼칠 가능성이 크다.</p>
+
+<p>이를 방지하기 위해 해당 값을 특정 범위 이내로 정규화 해 주는 작업이 필요하다.</p>
+
+<p>정규화에는 여러가지 방법이 있으며 본 포스팅에서는 sklearn 의 MinMaxScaler 를 활용한다.</p>
+
+<p>Age 를 제외한 나머지 값은 모두 0 또는 1 의 값을 가지고 있지만 Age 의 값은 수십 이상의 값을 가지고 있기 때문에 Age 값을 정규화 해 보자.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="c1"># Import MinMaxScaler 
+</span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">MinMaxScaler</span>
+
+<span class="c1"># 정규화 함수 정의
+</span><span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">columns</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+        <span class="n">scaler</span> <span class="o">=</span> <span class="n">MinMaxScaler</span><span class="p">()</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">scaler</span><span class="p">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">data</span><span class="p">[[</span><span class="n">column</span><span class="p">]])</span>
+    <span class="k">return</span> <span class="n">data</span>
+
+<span class="c1"># 정규화 대상 Column 정의
+</span><span class="n">normalize_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s">'Age'</span><span class="p">]</span>
+
+<span class="c1"># 함수 실행
+</span><span class="n">train_df</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">train_df</span><span class="p">,</span><span class="n">normalize_columns</span><span class="p">)</span>
+<span class="n">test_df</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">test_df</span><span class="p">,</span><span class="n">normalize_columns</span><span class="p">)</span></code></pre></figure>
+
+<p><br /></p>
+
+<h4 id="결과값-분리">결과값 분리</h4>
+
+<p>본 데이터 셋은 학습 데이터와 결과 값 (생존여부 ‘Survived’) 이 하나의 Table 로 되어 있기 때문에 y 값을 분리해 주는 작업이 필요하다.</p>
+
+<p>Test 데이터셋의 생존 여부 값이 gender_submission.csv 라는 별도 파일로 있다.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="c1"># Train Data frame 복사 후 'survived' Column 을 분리
+</span><span class="n">train_X</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">train_y</span> <span class="o">=</span> <span class="n">train_X</span><span class="p">.</span><span class="n">pop</span><span class="p">(</span><span class="s">'Survived'</span><span class="p">)</span>
+
+<span class="c1"># Test Data frame 복사 후 생존 여부 값은 'gender_submission.csv' 파일에서 가져옴
+</span><span class="n">test_X</span> <span class="o">=</span> <span class="n">test_df</span><span class="p">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">test_y</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'gender_submission.csv'</span><span class="p">)</span>
+<span class="n">test_y</span><span class="p">.</span><span class="n">drop</span><span class="p">(</span><span class="s">'PassengerId'</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span></code></pre></figure>
+
+<p><br /></p>
+
+<h4 id="tensor-flow-모델-정의">Tensor Flow 모델 정의</h4>
+
+<p>드디어 전처리가 완료 되었고 모델 학습을 시작할 수 있다.</p>
+
+<p>0 (사망) 또는 1 (생존) 을 예측하는 분류 문제이기 때문에 Loss 로는 ‘BinaryCrossentropy’, 출력 Layer 의 활성화 함수는 ‘sigmoid’ 를 사용하였다.</p>
+
+<p>Optimizer 는 Adam 을 사용하였고, 중간 Dense Layer 구조는 특별할 게 없다.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">loss</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">losses</span><span class="p">.</span><span class="n">BinaryCrossentropy</span><span class="p">()</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">optimizers</span><span class="p">.</span><span class="n">Adam</span><span class="p">()</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">Sequential</span><span class="p">()</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">train_X</span><span class="p">.</span><span class="n">keys</span><span class="p">())]))</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span><span class="n">activation</span><span class="o">=</span><span class="s">'relu'</span><span class="p">))</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span><span class="n">activation</span><span class="o">=</span><span class="s">'relu'</span><span class="p">))</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">activation</span><span class="o">=</span><span class="s">'sigmoid'</span><span class="p">))</span>
+
+<span class="n">model</span><span class="p">.</span><span class="nb">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span><span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span><span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s">'acc'</span><span class="p">])</span></code></pre></figure>
+
+<p><br /></p>
+
+<h4 id="tensor-flow-모델-학습">Tensor Flow 모델 학습</h4>
+
+<p>앞에서 정의한 모델을 전처리 완료한 데이터 기반으로 학습해보자.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="c1"># 500 Epoch
+</span><span class="n">epoch</span> <span class="o">=</span> <span class="mi">500</span>
+
+<span class="c1"># 20% 의 Train 데이터를 Validation 으로 활용
+</span><span class="n">valid_split</span> <span class="o">=</span> <span class="mf">0.2</span>
+
+<span class="c1"># 학습 실행 후 history 에 진행 결과를 저장
+</span><span class="n">history</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">train_X</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">train_y</span><span class="p">,</span><span class="n">epochs</span><span class="o">=</span><span class="n">epoch</span><span class="p">,</span><span class="n">validation_split</span><span class="o">=</span><span class="n">valid_split</span><span class="p">)</span></code></pre></figure>
+
+<p><br /></p>
+
+<h4 id="학습-결과-테스트">학습 결과 테스트</h4>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">model</span><span class="p">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">test_X</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">test_y</span><span class="p">)</span></code></pre></figure>
+
+<p><br /></p>
+
+<h1 id="제목입니다">제목입니다.</h1>
+<h2 id="부제목">부제목</h2>
+
+<p>본문</p>
+
+<h4 id="목차">목차</h4>
+
+<h6 id="순서-목차-샘플">순서 목차 샘플:</h6>
+
+<ol>
+  <li>배고파.</li>
+  <li>밥먹자.</li>
+  <li>Venmo biodiesel gentrify enamel pin meditation.</li>
+  <li>Jean shorts shaman listicle pickled portland.</li>
+  <li>Salvia mumblecore brunch iPhone migas.</li>
+</ol>
+
+<h6 id="unordered-list-example">Unordered list example:</h6>
+
+<ul>
+  <li>Bitters semiotics vice thundercats synth.</li>
+  <li>Literally cred narwhal bitters wayfarers.</li>
+  <li>Kale chips chartreuse paleo tbh street art marfa.</li>
+  <li>Mlkshk polaroid sriracha brooklyn.</li>
+  <li>Pug you probably haven’t heard of them air plant man bun.</li>
+</ul>
+
+<p>You’ll find this post in your <code class="language-plaintext highlighter-rouge">_posts</code> directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run <code class="language-plaintext highlighter-rouge">jekyll serve</code>, which launches a web server and auto-regenerates your site when a file is updated.</p>
+
+<p>To add new posts, simply add a file in the <code class="language-plaintext highlighter-rouge">_posts</code> directory that follows the convention <code class="language-plaintext highlighter-rouge">YYYY-MM-DD-name-of-post.ext</code> and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.</p>
+
+<p>Jekyll also offers powerful support for code snippets:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">print_hi</span><span class="p">(</span><span class="nb">name</span><span class="p">)</span>
+  <span class="nb">puts</span> <span class="s2">"Hi, </span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">"</span>
+<span class="k">end</span>
+<span class="n">print_hi</span><span class="p">(</span><span class="s1">'Tom'</span><span class="p">)</span>
+<span class="c1">#=&gt; prints 'Hi, Tom' to STDOUT.</span></code></pre></figure>
+
+<p>Check out the <a href="https://jekyllrb.com/docs/home">Jekyll docs</a> for more info on how to get the most out of Jekyll. File all bugs/feature requests at <a href="https://github.com/jekyll/jekyll">Jekyll’s GitHub repo</a>. If you have questions, you can ask them on <a href="https://talk.jekyllrb.com/">Jekyll Talk</a>.</p>
+
+:ET

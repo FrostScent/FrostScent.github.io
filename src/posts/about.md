@@ -1,6 +1,6 @@
 # Hello
 
-Welcome to my blog. My name is Ed.<br>
-I'm very interested in the web front-end development.
+Welcome to my blog. My name is Aiden.<br>
+I'm very interested in the `Machine Learning`, `Deep Learning` and Full stack development.
 
-Visit my [Github repository](https://github.com/sungik-choi/gatsby-starter-apple).
+Visit my [Github](https://github.com/FrostScent).

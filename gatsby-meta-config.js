@@ -17,14 +17,14 @@
 
 /** @type {MetaConfig} */
 const metaConfig = {
-  title: "Dev Ed",
-  description: `Ed's Blog`,
-  author: "Ed",
-  siteUrl: "https://gatsby-starter-apple.netlify.app",
+  title: "Aiden",
+  description: `Aiden's Blog`,
+  author: "Aiden",
+  siteUrl: "https://FrostScent.github.io",
   lang: "en",
-  utterances: "sungik-choi/gatsby-starter-apple-comment",
+  utterances: "",
   links: {
-    github: "https://github.com/sungik-choi/gatsby-starter-apple",
+    github: "https://github.com/FrostScent",
   },
   favicon: "src/images/icon.png",
 }
